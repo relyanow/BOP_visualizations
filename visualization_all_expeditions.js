@@ -6,7 +6,7 @@
 
     var xobj = new XMLHttpRequest();
         xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'https://platform-beta.bop.nyc/api/expeditions/58112c8426915e7a0e4c14a8', true); // Replace 'my_data' with the path to your file
+    xobj.open('GET', 'BOP_data.json', true); // Replace 'my_data' with the path to your file
     xobj.onreadystatechange = function () {
           if (xobj.readyState == 4 && xobj.status == "200") {
             // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
@@ -21,30 +21,24 @@ function init() {
   // Parse JSON string into object
     actual_JSON = JSON.parse(response);
     console.log(actual_JSON);
-    console.log(actual_JSON.station.baselines)
 
-    var live_oyster_size = get_oyster_size_single(actual_JSON,0.0,200.0).filter(Number);
-    var number_live_oysters = get_number_live_oysters_single(actual_JSON,0.0,50.0).filter(Number);
-    var baseline_oyster_size = live_oyster_size // TODO
-    var baseline_number_live_oysters = []
-    for (var key in actual_JSON.station.baselines) {
-    	var x = actual_JSON.station.baselines[key];
-    	baseline_number_live_oysters.push(x[x.length-1].totalNumberOfLiveOystersAtBaseline);
-    };
-    console.log('baseline_number_live_oysters',baseline_number_live_oysters)
+
+    var live_oyster_size = get_oyster_size(actual_JSON,0.0,200.0).filter(Number);
+    var number_live_oysters = get_number_live_oysters(actual_JSON,0.0,50.0).filter(Number);
+    var baseline_oyster_size = live_oyster_size; // TODO
     // var total_mass_substrate_shell_oysters = get_total_mass_substrate_shell_oysters(actual_JSON,2.0,1000.0);
 
+    console.log('oyster size',live_oyster_size.sort());
     plot(live_oyster_size,0.0,200.0,5.0,'Live oyster size (mm)','Live oyster size (mm)','Number of oysters','div_oyster_size');
     plot_barchart([...Array(live_oyster_size.length).keys()].map(String),live_oyster_size.sort(sortNumber),Math.round(live_oyster_size.length/10),10,'Live oyster size (mm)','Oyster','Live oyster size (mm)','div_barplot_oyster_size');
     plot_boxplot(baseline_oyster_size,live_oyster_size,Math.round(live_oyster_size.length/10),10,'Live oyster size (mm)','Oyster','Live oyster size (mm)','div_boxplot_oyster_size');
     // plot_dates(actual_JSON,get_oyster_size,0.0,200.0,5.0,'Live oyster size (mm)','Live oyster size (mm)','Number of oysters','div_dates_oyster_size')
-    //plot_expeditions(actual_JSON,get_oyster_size,0.0,200.0,5.0,'Live oyster size (mm)','Live oyster size (mm)','Number of oysters','div_expeditions_oyster_size')
+    plot_expeditions(actual_JSON,get_oyster_size,0.0,200.0,5.0,'Live oyster size (mm)','Live oyster size (mm)','Number of oysters','div_expeditions_oyster_size')
 
     plot(number_live_oysters,0.0,50.0,1.0,'Number of live oysters per substrate shell','Number of live oysters per substrate shell','Number of substrate shells','div_number_oysters');
-    plot_barchart([...Array(number_live_oysters.length).keys()].map(String),number_live_oysters,1,1,'Number of live oysters per substrate shell','Substrate shell','Number of live oysters per substrate shell','div_barplot_number_oysters');
-    plot_double_barchart([...Array(number_live_oysters.length).keys()].map(String),baseline_number_live_oysters,number_live_oysters,1,1,'Number of live oysters per substrate shell','Substrate shell','Number of live oysters per substrate shell','div_double_barplot_number_oysters');
+    plot_barchart([...Array(number_live_oysters.length).keys()].map(String),number_live_oysters.sort(sortNumber).reverse(),Math.round(number_live_oysters.length/10),10,'Number of live oysters per substrate shell','Substrate shell','Number of live oysters per substrate shell','div_barplot_number_oysters');
     // plot_dates(actual_JSON,get_number_live_oysters,0.0,50.0,1.0,'Number of live oysters','Number of live oysters','Number of substrate shells','div_dates_number_oysters')
-    // plot_expeditions(actual_JSON,get_number_live_oysters,0.0,50.0,1.0,'Number of live oysters','Number of live oysters','Number of substrate shells','div_expeditions_number_oysters')
+    plot_expeditions(actual_JSON,get_number_live_oysters,0.0,50.0,1.0,'Number of live oysters','Number of live oysters','Number of substrate shells','div_expeditions_number_oysters')
 
     // plot(total_mass_substrate_shell_oysters,0.0,1000.0,20.0,'Total mass of substrate shell oysters (g)','Total mass of substrate shell oysters (g)','Number of substrate shells','div_mass_oysters')
     // plot_dates(actual_JSON,get_total_mass_substrate_shell_oysters,0.0,1000.0,20.0,'Total mass of substrate shell oysters (g)','Total mass of substrate shell oysters (g)','Normalized number of substrate shells','div_dates_mass_oysters')
@@ -374,36 +368,6 @@ function plot_barchart(x,y,xtick,ytick,title,xaxis,yaxis,div){
 	  yaxis: {title: yaxis,dtick: ytick},
 	  width: 700,
       height: 500,
-	};
-	Plotly.newPlot(div, data,layout);
-}
-
-
-function plot_double_barchart(x,ybaseline,ycurrent,xtick,ytick,title,xaxis,yaxis,div){
-	console.log('baseline',ybaseline);
-	console.log('current',ycurrent)
-	var trace1 = {
-	  x: x,
-	  y: ybaseline,
-	  type: 'bar',
-	  name:'Baseline expedition'
-	};
-
-	var trace2 = {
-	  x: x,
-	  y: ycurrent,
-	  type: 'bar',
-	  name:'Current expedition'
-	};
-	var data = [trace1,trace2];
-	var layout = {
-	  bargap: 0.1, 
-	  title: title, 
-	  xaxis: {title: xaxis,dtick: xtick}, 
-	  yaxis: {title: yaxis,dtick: ytick},
-	  width: 700,
-      height: 500,
-      barmode:'group'
 	};
 	Plotly.newPlot(div, data,layout);
 }
