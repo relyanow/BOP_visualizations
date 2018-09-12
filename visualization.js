@@ -26,29 +26,23 @@ function init() {
     var live_oyster_size = get_oyster_size_single(actual_JSON,0.0,200.0).filter(Number);
     var number_live_oysters = get_number_live_oysters_single(actual_JSON,0.0,50.0).filter(Number);
     var baseline_oyster_size = live_oyster_size // TODO
+    // creates an array with the number of live oysters at baseline
     var baseline_number_live_oysters = []
     for (var key in actual_JSON.station.baselines) {
     	var x = actual_JSON.station.baselines[key];
     	baseline_number_live_oysters.push(x[x.length-1].totalNumberOfLiveOystersAtBaseline);
     };
     console.log('baseline_number_live_oysters',baseline_number_live_oysters)
-    // var total_mass_substrate_shell_oysters = get_total_mass_substrate_shell_oysters(actual_JSON,2.0,1000.0);
 
     plot(live_oyster_size,0.0,200.0,5.0,'Live oyster size (mm)','Live oyster size (mm)','Number of oysters','div_oyster_size');
-    plot_barchart([...Array(live_oyster_size.length).keys()].map(String),live_oyster_size.sort(sortNumber),Math.round(live_oyster_size.length/10),10,'Live oyster size (mm)','Oyster','Live oyster size (mm)','div_barplot_oyster_size');
+    plot_barchart([...Array(live_oyster_size.length).keys()].map(function(y){return y+1;}),live_oyster_size.sort(sortNumber),Math.round(live_oyster_size.length/10),10,'Live oyster size (mm)','Oyster','Live oyster size (mm)','div_barplot_oyster_size');
     plot_boxplot(baseline_oyster_size,live_oyster_size,Math.round(live_oyster_size.length/10),10,'Live oyster size (mm)','Oyster','Live oyster size (mm)','div_boxplot_oyster_size');
-    // plot_dates(actual_JSON,get_oyster_size,0.0,200.0,5.0,'Live oyster size (mm)','Live oyster size (mm)','Number of oysters','div_dates_oyster_size')
-    //plot_expeditions(actual_JSON,get_oyster_size,0.0,200.0,5.0,'Live oyster size (mm)','Live oyster size (mm)','Number of oysters','div_expeditions_oyster_size')
 
     plot(number_live_oysters,0.0,50.0,1.0,'Number of live oysters per substrate shell','Number of live oysters per substrate shell','Number of substrate shells','div_number_oysters');
-    plot_barchart([...Array(number_live_oysters.length).keys()].map(String),number_live_oysters,1,1,'Number of live oysters per substrate shell','Substrate shell','Number of live oysters per substrate shell','div_barplot_number_oysters');
-    plot_double_barchart([...Array(number_live_oysters.length).keys()].map(String),baseline_number_live_oysters,number_live_oysters,1,1,'Number of live oysters per substrate shell','Substrate shell','Number of live oysters per substrate shell','div_double_barplot_number_oysters');
-    // plot_dates(actual_JSON,get_number_live_oysters,0.0,50.0,1.0,'Number of live oysters','Number of live oysters','Number of substrate shells','div_dates_number_oysters')
-    // plot_expeditions(actual_JSON,get_number_live_oysters,0.0,50.0,1.0,'Number of live oysters','Number of live oysters','Number of substrate shells','div_expeditions_number_oysters')
+    plot_barchart([...Array(number_live_oysters.length).keys()].map(function(y){return y+1;}),number_live_oysters,1,1,'Number of live oysters per substrate shell','Substrate shell','Number of live oysters per substrate shell','div_barplot_number_oysters');
+    // plots the bar chart
+    plot_double_barchart([...Array(number_live_oysters.length).keys()].map(function(y){return y+1;}),baseline_number_live_oysters,number_live_oysters,1,1,'Number of live oysters per substrate shell','Substrate shell','Number of live oysters per substrate shell','div_double_barplot_number_oysters');
 
-    // plot(total_mass_substrate_shell_oysters,0.0,1000.0,20.0,'Total mass of substrate shell oysters (g)','Total mass of substrate shell oysters (g)','Number of substrate shells','div_mass_oysters')
-    // plot_dates(actual_JSON,get_total_mass_substrate_shell_oysters,0.0,1000.0,20.0,'Total mass of substrate shell oysters (g)','Total mass of substrate shell oysters (g)','Normalized number of substrate shells','div_dates_mass_oysters')
-    // plot_expeditions(actual_JSON,get_total_mass_substrate_shell_oysters,0.0,1000.0,20.0,'Total mass of substrate shell oysters (g)','Total mass of substrate shell oysters (g)','Normalized number of substrate shells','div_expeditions_mass_oysters')
  });
 }
 
@@ -378,7 +372,7 @@ function plot_barchart(x,y,xtick,ytick,title,xaxis,yaxis,div){
 	Plotly.newPlot(div, data,layout);
 }
 
-
+// function for plotting a double (grouped) bar chart
 function plot_double_barchart(x,ybaseline,ycurrent,xtick,ytick,title,xaxis,yaxis,div){
 	console.log('baseline',ybaseline);
 	console.log('current',ycurrent)
@@ -403,7 +397,7 @@ function plot_double_barchart(x,ybaseline,ycurrent,xtick,ytick,title,xaxis,yaxis
 	  yaxis: {title: yaxis,dtick: ytick},
 	  width: 700,
       height: 500,
-      barmode:'group'
+      barmode:'group' // creates a grouped bar chart
 	};
 	Plotly.newPlot(div, data,layout);
 }
